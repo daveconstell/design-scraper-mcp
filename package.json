@@ -1,0 +1,25 @@
+{
+  "name": "design-scraper-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for analyzing websites and generating comprehensive design systems and style guides",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:src": "prettier --write src/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.2",
+    "chalk": "^5.5.0",
+    "puppeteer": "^24.16.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
