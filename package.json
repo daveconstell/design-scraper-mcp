@@ -14,7 +14,10 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "format:src": "prettier --write src/"
+    "format:src": "prettier --write src/",
+    "inspector": "npx @modelcontextprotocol/inspector",
+    "inspector:test": "npx @modelcontextprotocol/inspector node src/index.js",
+    "inspector:cli": "npx @modelcontextprotocol/inspector --cli node src/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.2",
