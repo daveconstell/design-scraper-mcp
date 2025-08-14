@@ -18,21 +18,27 @@ class ColorExtractor {
   // Convert hex to RGB
   hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
   }
 
   // Convert RGB to hex
   rgbToHex(r, g, b) {
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
   // Parse color string to RGB object
   parseColor(colorStr) {
-    if (!colorStr || colorStr === 'transparent' || colorStr === 'rgba(0, 0, 0, 0)') {
+    if (
+      !colorStr ||
+      colorStr === 'transparent' ||
+      colorStr === 'rgba(0, 0, 0, 0)'
+    ) {
       return null;
     }
 
@@ -42,12 +48,14 @@ class ColorExtractor {
     }
 
     // Handle rgb/rgba colors
-    const rgbMatch = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    const rgbMatch = colorStr.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
+    );
     if (rgbMatch) {
       return {
         r: parseInt(rgbMatch[1]),
         g: parseInt(rgbMatch[2]),
-        b: parseInt(rgbMatch[3])
+        b: parseInt(rgbMatch[3]),
       };
     }
 
@@ -56,7 +64,11 @@ class ColorExtractor {
 
   // Convert any color string to hex format
   colorToHex(colorStr) {
-    if (!colorStr || colorStr === 'transparent' || colorStr === 'rgba(0, 0, 0, 0)') {
+    if (
+      !colorStr ||
+      colorStr === 'transparent' ||
+      colorStr === 'rgba(0, 0, 0, 0)'
+    ) {
       return '';
     }
 
@@ -77,7 +89,7 @@ class ColorExtractor {
   // Extract colors from website
   async extractColors(url) {
     await this.page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     const extractedData = await this.page.evaluate(() => {
       const backgrounds = new Set();
       const foregrounds = new Set();
@@ -89,7 +101,7 @@ class ColorExtractor {
       };
 
       // Helper function to normalize color
-      const normalizeColor = (color) => {
+      const normalizeColor = color => {
         if (!color || color === 'rgba(0, 0, 0, 0)' || color === 'transparent') {
           return '';
         }
@@ -102,7 +114,7 @@ class ColorExtractor {
         const bodyStyles = window.getComputedStyle(body);
         const bodyBg = normalizeColor(bodyStyles.backgroundColor);
         const bodyFg = normalizeColor(bodyStyles.color);
-        
+
         if (bodyBg) {
           backgrounds.add(bodyBg);
           elements.body.background = bodyBg;
@@ -114,15 +126,16 @@ class ColorExtractor {
       }
 
       // Extract header colors (header, nav, or first significant header element)
-      const headerEl = document.querySelector('header') || 
-                      document.querySelector('nav') || 
-                      document.querySelector('.header') ||
-                      document.querySelector('#header');
+      const headerEl =
+        document.querySelector('header') ||
+        document.querySelector('nav') ||
+        document.querySelector('.header') ||
+        document.querySelector('#header');
       if (headerEl) {
         const headerStyles = window.getComputedStyle(headerEl);
         const headerBg = normalizeColor(headerStyles.backgroundColor);
         const headerFg = normalizeColor(headerStyles.color);
-        
+
         if (headerBg) {
           backgrounds.add(headerBg);
           elements.header.background = headerBg;
@@ -134,14 +147,15 @@ class ColorExtractor {
       }
 
       // Extract footer colors
-      const footerEl = document.querySelector('footer') || 
-                      document.querySelector('.footer') ||
-                      document.querySelector('#footer');
+      const footerEl =
+        document.querySelector('footer') ||
+        document.querySelector('.footer') ||
+        document.querySelector('#footer');
       if (footerEl) {
         const footerStyles = window.getComputedStyle(footerEl);
         const footerBg = normalizeColor(footerStyles.backgroundColor);
         const footerFg = normalizeColor(footerStyles.color);
-        
+
         if (footerBg) {
           backgrounds.add(footerBg);
           elements.footer.background = footerBg;
@@ -152,9 +166,9 @@ class ColorExtractor {
         }
       }
 
-
       // Extract button colors with scoring system
-      const buttons = document.querySelectorAll(`
+      const buttons = document.querySelectorAll(
+        `
         button,
         .button,
         .btn,
@@ -181,40 +195,62 @@ class ColorExtractor {
         .secondary-button,
         .submit-button,
         .form-button
-      `.replace(/\s+/g, ' ').trim());
+      `
+          .replace(/\s+/g, ' ')
+          .trim()
+      );
       const buttonColorMap = new Map();
-      
+
       buttons.forEach(button => {
         const buttonStyles = window.getComputedStyle(button);
         const buttonBg = normalizeColor(buttonStyles.backgroundColor);
         const buttonFg = normalizeColor(buttonStyles.color);
-        
+
         // Filter out combinations that don't make sense
         const isValidCombination = (bg, fg) => {
           // Must have at least one color (background or foreground)
           if (!bg && !fg) return false;
-          
+
           // If both colors exist, they shouldn't be the same (invisible text)
           if (bg && fg && bg === fg) return false;
-          
+
           // If only foreground exists, it should not be white/transparent (likely inherited)
-          if (!bg && fg && (fg === 'rgb(255, 255, 255)' || fg === 'rgba(255, 255, 255, 1)')) return false;
-          
+          if (
+            !bg &&
+            fg &&
+            (fg === 'rgb(255, 255, 255)' || fg === 'rgba(255, 255, 255, 1)')
+          )
+            return false;
+
           // Remove buttons with white background
-          if (bg && (bg === 'rgb(255, 255, 255)' || bg === 'rgba(255, 255, 255, 1)' || bg === '#ffffff')) return false;
-          
+          if (
+            bg &&
+            (bg === 'rgb(255, 255, 255)' ||
+              bg === 'rgba(255, 255, 255, 1)' ||
+              bg === '#ffffff')
+          )
+            return false;
+
           // Remove buttons with black background and black foreground
-          if (bg && fg &&
-              (bg === 'rgb(0, 0, 0)' || bg === 'rgba(0, 0, 0, 1)' || bg === '#000000') &&
-              (fg === 'rgb(0, 0, 0)' || fg === 'rgba(0, 0, 0, 1)' || fg === '#000000')) return false;
-          
+          if (
+            bg &&
+            fg &&
+            (bg === 'rgb(0, 0, 0)' ||
+              bg === 'rgba(0, 0, 0, 1)' ||
+              bg === '#000000') &&
+            (fg === 'rgb(0, 0, 0)' ||
+              fg === 'rgba(0, 0, 0, 1)' ||
+              fg === '#000000')
+          )
+            return false;
+
           return true;
         };
-        
+
         if (isValidCombination(buttonBg, buttonFg)) {
           // Create a unique key for this color combination
           const colorKey = `${buttonBg || 'none'}|${buttonFg || 'none'}`;
-          
+
           if (buttonColorMap.has(colorKey)) {
             // Increment score for existing color combination
             const existing = buttonColorMap.get(colorKey);
@@ -224,10 +260,10 @@ class ColorExtractor {
             buttonColorMap.set(colorKey, {
               background: buttonBg || '',
               foreground: buttonFg || '',
-              score: 1
+              score: 1,
             });
           }
-          
+
           if (buttonBg) backgrounds.add(buttonBg);
           if (buttonFg) foregrounds.add(buttonFg);
         }
@@ -240,7 +276,7 @@ class ColorExtractor {
         .map(button => ({
           background: button.background,
           foreground: button.foreground,
-          score: button.score
+          score: button.score,
         }));
 
       // If no buttons found, add empty entry
@@ -253,29 +289,47 @@ class ColorExtractor {
       return {
         backgrounds: Array.from(backgrounds),
         foregrounds: Array.from(foregrounds),
-        elements
+        elements,
       };
     });
 
     // Convert all colors to hex format and ensure uniqueness
     const convertedData = {
-      backgrounds: [...new Set(extractedData.backgrounds.map(color => this.colorToHex(color)).filter(color => color))],
-      foregrounds: [...new Set(extractedData.foregrounds.map(color => this.colorToHex(color)).filter(color => color))],
-      elements: {}
+      backgrounds: [
+        ...new Set(
+          extractedData.backgrounds
+            .map(color => this.colorToHex(color))
+            .filter(color => color)
+        ),
+      ],
+      foregrounds: [
+        ...new Set(
+          extractedData.foregrounds
+            .map(color => this.colorToHex(color))
+            .filter(color => color)
+        ),
+      ],
+      elements: {},
     };
 
     // Convert element colors to hex
     Object.keys(extractedData.elements).forEach(elementType => {
       if (elementType === 'button') {
-        convertedData.elements.button = extractedData.elements.button.map(button => ({
-          background: this.colorToHex(button.background),
-          foreground: this.colorToHex(button.foreground),
-          score: button.score
-        }));
+        convertedData.elements.button = extractedData.elements.button.map(
+          button => ({
+            background: this.colorToHex(button.background),
+            foreground: this.colorToHex(button.foreground),
+            score: button.score,
+          })
+        );
       } else {
         convertedData.elements[elementType] = {
-          background: this.colorToHex(extractedData.elements[elementType].background),
-          foreground: this.colorToHex(extractedData.elements[elementType].foreground)
+          background: this.colorToHex(
+            extractedData.elements[elementType].background
+          ),
+          foreground: this.colorToHex(
+            extractedData.elements[elementType].foreground
+          ),
         };
       }
     });
@@ -309,7 +363,7 @@ export default async function colors(url) {
         header: { background: '', foreground: '' },
         body: { background: '', foreground: '' },
         footer: { background: '', foreground: '' },
-      }
+      },
     };
   }
 

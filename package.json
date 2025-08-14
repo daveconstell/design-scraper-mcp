@@ -9,6 +9,9 @@
   "bin": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:src": "prettier --write src/"
@@ -20,6 +23,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "vitest": "^3.2.4"
   }
 }

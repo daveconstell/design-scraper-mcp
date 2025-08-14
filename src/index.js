@@ -1,35 +1,45 @@
 #!/usr/bin/env node
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
 import screenshots from './screenshots.js';
 
 // Create an MCP server
 const server = new McpServer({
-  name: "design-scraper-mcp",
-  version: "1.0.0"
+  name: 'design-scraper-mcp',
+  version: '1.0.0',
 });
 
 // Simple tool registration - user only provides URL
-server.registerTool("generate", {
-  title: "Website Design System Generator",
-  description: "Analyze a website and automatically generate a comprehensive style guide - just provide the URL",
-  inputSchema: {
-    url: z.string().url("Must be a valid URL")
-  }
-}, async ({ url }) => {
-  const screenshotData = await screenshots(url);
-  const { main: generateMain } = await import('./generate.js');
-  const results = await generateMain(url);
+server.registerTool(
+  'generate',
+  {
+    title: 'Website Design System Generator',
+    description:
+      'Analyze a website and automatically generate a comprehensive style guide - just provide the URL',
+    inputSchema: {
+      url: z.string().url('Must be a valid URL'),
+    },
+  },
+  async ({ url }) => {
+    const screenshotData = await screenshots(url);
+    const { main: generateMain } = await import('./generate.js');
+    const results = await generateMain(url);
 
-  // Generate instructions based on your specific data structure
-  const hasColors = results.colors && (results.colors.backgrounds?.length > 0 || results.colors.foregrounds?.length > 0);
-  const hasFonts = results.fonts && (results.fonts.headings || results.fonts.body);
-  const hasBorders = results.borders && (results.borders.borderRadius || results.borders.borderWidth);
-  const theme = results.theme || 'unknown';
+    // Generate instructions based on your specific data structure
+    const hasColors =
+      results.colors &&
+      (results.colors.backgrounds?.length > 0 ||
+        results.colors.foregrounds?.length > 0);
+    const hasFonts =
+      results.fonts && (results.fonts.headings || results.fonts.body);
+    const hasBorders =
+      results.borders &&
+      (results.borders.borderRadius || results.borders.borderWidth);
+    const theme = results.theme || 'unknown';
 
-  const instructions = `🎨 DESIGN SYSTEM GENERATOR
+    const instructions = `🎨 DESIGN SYSTEM GENERATOR
 
 📸 VISUAL REFERENCE
 - Full Page Screenshot Captured
@@ -90,47 +100,55 @@ ${JSON.stringify(results, null, 2)}
 
 Create this as a single, comprehensive HTML artifact that serves as a complete design system reference for designers and developers.`;
 
-  return {
-    content: [
-      {
-        type: "text",
-        text: instructions
-      },
-      {
-        type: "image",
-        data: screenshotData.screenshot,
-        mimeType: "image/png"
-      }
-    ]
-  };
-});
+    return {
+      content: [
+        {
+          type: 'text',
+          text: instructions,
+        },
+        {
+          type: 'image',
+          data: screenshotData.screenshot,
+          mimeType: 'image/png',
+        },
+      ],
+    };
+  }
+);
 
 // Screenshot tool registration
-server.registerTool("screenshot", {
-  title: "Website Screenshot",
-  description: "Take a full-page screenshot of a website",
-  inputSchema: {
-    url: z.string().url("Must be a valid URL"),
-    viewportWidth: z.number().optional(),
-    viewportHeight: z.number().optional()
+server.registerTool(
+  'screenshot',
+  {
+    title: 'Website Screenshot',
+    description: 'Take a full-page screenshot of a website',
+    inputSchema: {
+      url: z.string().url('Must be a valid URL'),
+      viewportWidth: z.number().optional(),
+      viewportHeight: z.number().optional(),
+    },
+  },
+  async ({ url, viewportWidth, viewportHeight }) => {
+    const screenshotData = await screenshots(url, {
+      viewportWidth,
+      viewportHeight,
+    });
+
+    return {
+      content: [
+        {
+          type: 'image',
+          data: screenshotData.screenshot,
+          mimeType: 'image/png',
+        },
+        {
+          type: 'text',
+          text: `Screenshot details:\nURL: ${url}\nWidth: ${screenshotData.dimensions.width}\nHeight: ${screenshotData.dimensions.height}\nSize: ${screenshotData.size} bytes`,
+        },
+      ],
+    };
   }
-}, async ({ url, viewportWidth, viewportHeight }) => {
-  const screenshotData = await screenshots(url, { viewportWidth, viewportHeight });
-  
-  return {
-    content: [
-      {
-        type: "image",
-        data: screenshotData.screenshot,
-        mimeType: "image/png"
-      },
-      {
-        type: "text",
-        text: `Screenshot details:\nURL: ${url}\nWidth: ${screenshotData.dimensions.width}\nHeight: ${screenshotData.dimensions.height}\nSize: ${screenshotData.size} bytes`
-      }
-    ]
-  };
-});
+);
 
 // Start the server
 async function main() {
@@ -138,6 +156,6 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch((error) => {
+main().catch(error => {
   process.exit(1);
 });

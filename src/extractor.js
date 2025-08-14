@@ -38,7 +38,7 @@ class Extractor {
 
     try {
       await this.browserManager.init();
-      
+
       page = await this.browserManager.newPage();
       await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -50,7 +50,6 @@ class Extractor {
           results[name] = null; // Set to null to indicate failure
         }
       }
-
     } catch (error) {
       throw error;
     } finally {

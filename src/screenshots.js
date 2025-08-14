@@ -4,7 +4,7 @@ export async function screenshotExtractor(page, url) {
     // Take a single full page screenshot
     const screenshotBuffer = await page.screenshot({
       fullPage: true,
-      type: 'png'
+      type: 'png',
     });
 
     // Convert to base64
@@ -15,12 +15,12 @@ export async function screenshotExtractor(page, url) {
       return {
         viewport: {
           width: window.innerWidth,
-          height: window.innerHeight
+          height: window.innerHeight,
         },
         document: {
           width: document.documentElement.scrollWidth,
-          height: document.documentElement.scrollHeight
-        }
+          height: document.documentElement.scrollHeight,
+        },
       };
     });
 
@@ -29,9 +29,9 @@ export async function screenshotExtractor(page, url) {
       size: screenshotBuffer.length,
       dimensions: {
         width: pageInfo.document.width,
-        height: pageInfo.document.height
+        height: pageInfo.document.height,
       },
-      url
+      url,
     };
   } catch (error) {
     throw error;
@@ -47,27 +47,27 @@ export default async function screenshots(url, options = {}) {
       screenshot: null,
       size: null,
       dimensions: null,
-      url: null
+      url: null,
     };
   }
 
   const page = await browserManager.newPage();
-  
+
   try {
     // Set viewport if specified
     if (options.viewportWidth && options.viewportHeight) {
       await page.setViewport({
         width: options.viewportWidth,
-        height: options.viewportHeight
+        height: options.viewportHeight,
       });
     }
 
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     // Take a single full page screenshot
     const screenshotBuffer = await page.screenshot({
       fullPage: true,
-      type: 'png'
+      type: 'png',
     });
 
     // Convert to base64
@@ -78,12 +78,12 @@ export default async function screenshots(url, options = {}) {
       return {
         viewport: {
           width: window.innerWidth,
-          height: window.innerHeight
+          height: window.innerHeight,
         },
         document: {
           width: document.documentElement.scrollWidth,
-          height: document.documentElement.scrollHeight
-        }
+          height: document.documentElement.scrollHeight,
+        },
       };
     });
 
@@ -92,9 +92,9 @@ export default async function screenshots(url, options = {}) {
       size: screenshotBuffer.length,
       dimensions: {
         width: pageInfo.document.width,
-        height: pageInfo.document.height
+        height: pageInfo.document.height,
       },
-      url
+      url,
     };
   } catch (error) {
     throw error;

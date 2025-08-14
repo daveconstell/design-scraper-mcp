@@ -441,12 +441,57 @@ The design system generator produces structured data:
 - **Error Isolation**: Failed extractors don't affect other pipeline components
 - **Viewport Optimization**: Screenshots use efficient viewport sizing
 
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for unit testing with comprehensive test coverage.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (development)
+npm test
+
+# Run tests once (CI/production)
+npm run test:run
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### Test Structure
+
+Tests are located in the `test/` directory and follow the naming convention `*.test.js`. The test suite includes:
+
+- **Unit Tests**: Individual extractor functions (color parsing, theme detection, etc.)
+- **Integration Tests**: Full pipeline extraction workflows
+- **Mock Tests**: Browser automation without actual network requests
+
+### Coverage Reports
+
+Coverage reports are generated in multiple formats:
+- **Terminal**: Text summary displayed after test runs
+- **HTML**: Interactive coverage report in `coverage/index.html`
+- **LCOV**: Machine-readable format for CI integration
+
+### GitHub Actions
+
+Automated testing runs on every push and pull request:
+- Tests against Node.js versions 18.x, 20.x, and 22.x
+- Includes linting checks with Prettier
+- Generates coverage reports
+- Uploads coverage data to Codecov (optional)
+
 ## Dependencies
 
 - **@modelcontextprotocol/sdk** (^1.17.2) - MCP server framework for tool registration
 - **puppeteer** (^24.16.1) - Headless browser automation for web scraping and screenshots
 - **chalk** (^5.5.0) - Terminal styling for colored console output
 - **zod** (^3.25.76) - Schema validation for input parameters and type safety
+
+### Development Dependencies
+
+- **vitest** (^3.2.4) - Fast unit testing framework with native ES modules support
+- **prettier** (^3.6.2) - Code formatting and style consistency
 
 ## Troubleshooting
 
